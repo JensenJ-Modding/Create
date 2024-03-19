@@ -52,7 +52,7 @@ public class AllTags {
 	}
 
 	public enum NameSpace {
-		
+
 		MOD(Create.ID, false, true),
 		FORGE("forge"),
 		TIC("tconstruct"),
@@ -76,7 +76,7 @@ public class AllTags {
 	}
 
 	public enum AllBlockTags {
-		
+
 		BRITTLE,
 		CASING,
 		CONTRAPTION_INVENTORY_DENY,
@@ -153,11 +153,11 @@ public class AllTags {
 		}
 
 		private static void init() {}
-		
+
 	}
 
 	public enum AllItemTags {
-		
+
 		BLAZE_BURNER_FUEL_REGULAR(MOD, "blaze_burner_fuel/regular"),
 		BLAZE_BURNER_FUEL_SPECIAL(MOD, "blaze_burner_fuel/special"),
 		CASING,
@@ -172,6 +172,7 @@ public class AllTags {
 		SEATS,
 		SLEEPERS,
 		TOOLBOXES,
+		TRACKS,
 		UPRIGHT_ON_BELT,
 		VALVE_HANDLES,
 		VANILLA_STRIPPED_LOGS,
@@ -224,11 +225,11 @@ public class AllTags {
 		}
 
 		private static void init() {}
-		
+
 	}
 
 	public enum AllFluidTags {
-		
+
 		BOTTOMLESS_ALLOW(MOD, "bottomless/allow"),
 		BOTTOMLESS_DENY(MOD, "bottomless/deny"),
 		FAN_PROCESSING_CATALYSTS_BLASTING(MOD, "fan_processing_catalysts/blasting"),
@@ -279,9 +280,9 @@ public class AllTags {
 		}
 
 		private static void init() {}
-		
+
 	}
-	
+
 	public enum AllEntityTags {
 
 		BLAZE_BURNER_CAPTURABLE,
@@ -327,9 +328,9 @@ public class AllTags {
 		}
 
 		private static void init() {}
-		
+
 	}
-	
+
 	public enum AllRecipeSerializerTags {
 
 		AUTOMATION_IGNORE,
