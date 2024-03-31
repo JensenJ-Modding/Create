@@ -85,7 +85,7 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity {
 	private ItemStack playEvent;
 	private List<? extends Recipe<?>> previousRecipeList;
 	private Item previousRecipeItem;
-	private Item previousFilter;
+	private ItemStack previousFilter;
 
 	public SawBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -362,10 +362,10 @@ public class SawBlockEntity extends BlockBreakingKineticBlockEntity {
 	}
 
 	private List<? extends Recipe<?>> getRecipes() {
-		if(previousRecipeItem == inventory.getStackInSlot(0).getItem() && previousFilter == filtering.getFilter().getItem())
+		if(previousRecipeItem == inventory.getStackInSlot(0).getItem() && previousFilter == filtering.getFilter())
 			return previousRecipeList;
 		previousRecipeItem = inventory.getStackInSlot(0).getItem();
-		previousFilter = filtering.getFilter().getItem();
+		previousFilter = filtering.getFilter();
 
 		Optional<CuttingRecipe> assemblyRecipe = SequencedAssemblyRecipe.getRecipe(level, inventory.getStackInSlot(0),
 			AllRecipeTypes.CUTTING.getType(), CuttingRecipe.class);
