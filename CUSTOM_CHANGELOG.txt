@@ -1,0 +1,6 @@
+Mechanical Saw Recipe Caching
+Belts inputting into vaults have inventory versioning applied.
+Schematicannon range check removed
+filters respect nbt data correctly
+Chutes dont check for input if powered
+cherry picked stuff from 1.18 unreleased branch

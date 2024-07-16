@@ -469,15 +469,6 @@ public class SchematicannonBlockEntity extends SmartBlockEntity implements MenuP
 			return;
 		}
 
-		if (!printer.getAnchor()
-			.closerThan(getBlockPos(), MAX_ANCHOR_DISTANCE)) {
-			state = State.STOPPED;
-			statusMsg = "targetOutsideRange";
-			printer.resetSchematic();
-			sendUpdate = true;
-			return;
-		}
-
 		state = State.PAUSED;
 		statusMsg = "ready";
 		updateChecklist();

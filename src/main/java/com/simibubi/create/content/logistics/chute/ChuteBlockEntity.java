@@ -83,7 +83,7 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 	int entitySearchCooldown;
 
 	VersionedInventoryTrackerBehaviour invVersionTracker;
-	
+
 	LazyOptional<IItemHandler> capAbove;
 	LazyOptional<IItemHandler> capBelow;
 
@@ -341,6 +341,8 @@ public class ChuteBlockEntity extends SmartBlockEntity implements IHaveGoggleInf
 		if (inv == null)
 			return;
 		if (invVersionTracker.stillWaiting(inv))
+			return;
+		if(!this.canOutputItems())
 			return;
 		Predicate<ItemStack> canAccept = this::canAcceptItem;
 		int count = getExtractionAmount();
