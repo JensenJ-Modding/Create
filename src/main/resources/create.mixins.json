@@ -69,8 +69,6 @@
     "client.HumanoidModelMixin",
     "client.LevelRendererMixin",
     "client.PlayerRendererMixin",
-    "client.MapRendererMapInstanceMixin",
-    "compat.JourneyFullscreenMapMixin",
     "compat.XaeroFullscreenMapAccessor",
     "compat.XaeroFullscreenMapMixin",
     "compat.XaeroPauseScreenOverrideMixin"

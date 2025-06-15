@@ -18,7 +18,7 @@ import net.minecraft.util.Mth;
 
 import net.minecraft.world.level.Level;
 
-import net.minecraftforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
 
 import xaero.map.gui.GuiMap;
 import xaero.map.gui.ScreenBase;
@@ -66,7 +66,7 @@ public class XaeroTrainMap {
 	}
 
 	// Called by XaeroFullscreenMapMixin, guarded by try-catch
-	public static void onRender(GuiGraphics graphics, GuiMap screen,  int mX, int mY, float pt) {
+	public static void onRender(GuiGraphics graphics, GuiMap screen,  int mX, int mY) {
 		double x = ((XaeroFullscreenMapAccessor) screen).getCameraX();
 		double z = ((XaeroFullscreenMapAccessor) screen).getCameraZ();
 		double mapScale = ((XaeroFullscreenMapAccessor) screen).getScale();
@@ -102,7 +102,7 @@ public class XaeroTrainMap {
 				Mth.floor(screen.width / scale), Mth.floor(screen.height / scale));
 
 		List<FormattedText> tooltip =
-			TrainMapManager.renderAndPick(graphics, Mth.floor(mouseX), Mth.floor(mouseY), pt, false, bounds);
+			TrainMapManager.renderAndPick(graphics, Mth.floor(mouseX), Mth.floor(mouseY), false, bounds);
 
 		pose.popPose();
 

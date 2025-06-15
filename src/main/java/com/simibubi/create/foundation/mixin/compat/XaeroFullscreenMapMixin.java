@@ -24,7 +24,7 @@ public abstract class XaeroFullscreenMapMixin {
 	public void create$xaeroMapFullscreenRender(GuiGraphics graphics, int mouseX, int mouseY, float pt, CallbackInfo ci) {
 		try {
 			if(!create$failedToRenderTrainMap)
-				XaeroTrainMap.onRender(graphics, (GuiMap) (Object) this, mouseX, mouseY, pt);
+				XaeroTrainMap.onRender(graphics, (GuiMap) (Object) this, mouseX, mouseY);
 		} catch (Exception e) {
 			Create.LOGGER.error("Failed to render Xaero's World Map train map integration: \n{}", e.toString());
 			create$failedToRenderTrainMap = true;
