@@ -179,6 +179,7 @@ dependencies {
     implementation("info.journeymap:journeymap-api-neoforge:2.0.0-1.21.1-SNAPSHOT") {
         exclude(group: "curse.maven") // Pulls in a old version of journey map which is for forge
     }
+    implementation("curse.maven:xaeros-world-map-317780:6538359")
 }
 
 sourceSets.main {

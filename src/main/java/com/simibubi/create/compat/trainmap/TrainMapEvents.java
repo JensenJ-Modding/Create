@@ -25,6 +25,8 @@ public class TrainMapEvents {
 			FTBChunksTrainMap.tick();
 		if (Mods.JOURNEYMAP.isLoaded())
 			JourneyTrainMap.tick();
+		if (Mods.XAEROWORLDMAP.isLoaded())
+			XaeroTrainMap.tick();
 	}
 
 	@SubscribeEvent
@@ -36,6 +38,9 @@ public class TrainMapEvents {
 			FTBChunksTrainMap.mouseClick(event);
 		if (Mods.JOURNEYMAP.isLoaded())
 			JourneyTrainMap.mouseClick(event);
+		if(Mods.XAEROWORLDMAP.isLoaded()){
+			XaeroTrainMap.mouseClick(event);
+		}
 	}
 
 	@SubscribeEvent
