@@ -3,6 +3,8 @@ package com.simibubi.create.content.trains.track;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import com.simibubi.create.infrastructure.config.AllConfigs;
+
 import org.apache.commons.lang3.mutable.MutableObject;
 
 import com.simibubi.create.AllDataComponents;
@@ -125,7 +127,7 @@ public class TrackTargetingBlockItem extends BlockItem {
 
 		boolean bezier = stack.has(AllDataComponents.TRACK_TARGETING_ITEM_BEZIER);
 
-		if (!selectedPos.closerThan(placedPos, bezier ? 64 + 16 : 16)) {
+		if (!selectedPos.closerThan(placedPos, bezier ? AllConfigs.server().trains.maxTrackPlacementLength.get() + 16 : 16)) {
 			player.displayClientMessage(CreateLang.translateDirect("track_target.too_far")
 				.withStyle(ChatFormatting.RED), true);
 			return InteractionResult.FAIL;
