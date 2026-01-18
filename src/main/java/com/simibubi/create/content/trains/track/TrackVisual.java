@@ -79,7 +79,7 @@ public class TrackVisual extends AbstractVisual implements BlockEntityVisual<Tra
 
 	@Nullable
 	private BezierTrackVisual createInstance(BezierConnection bc) {
-		if (!bc.isPrimary())
+		if (TrackRenderer.isOtherBezierTrackLoaded(level, bc, pos) && !bc.isPrimary())
 			return null;
 		return new BezierTrackVisual(bc);
 	}

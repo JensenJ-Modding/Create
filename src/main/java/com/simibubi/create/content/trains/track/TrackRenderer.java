@@ -25,6 +25,7 @@ import net.minecraft.core.Direction.Axis;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -40,11 +41,17 @@ public class TrackRenderer extends SafeBlockEntityRenderer<TrackBlockEntity> {
 			return;
 		VertexConsumer vb = buffer.getBuffer(RenderType.cutoutMipped());
 		be.connections.values()
-			.forEach(bc -> renderBezierTurn(level, bc, ms, vb));
+			.forEach(bc -> renderBezierTurn(level, be, bc, ms, vb));
 	}
 
-	public static void renderBezierTurn(Level level, BezierConnection bc, PoseStack ms, VertexConsumer vb) {
-		if (!bc.isPrimary())
+	public static boolean isOtherBezierTrackLoaded(Level level, BezierConnection connection, BlockPos thisPos){
+		BlockPos pos1 = connection.bePositions.getFirst();
+		BlockPos pos2 = connection.bePositions.getSecond();
+		return level.isLoaded(thisPos.equals(pos1) ? pos2 : pos1);
+	}
+
+	public static void renderBezierTurn(Level level, BlockEntity be, BezierConnection bc, PoseStack ms, VertexConsumer vb) {
+		if (isOtherBezierTrackLoaded(level, bc, be.getBlockPos()) && !bc.isPrimary())
 			return;
 
 		ms.pushPose();

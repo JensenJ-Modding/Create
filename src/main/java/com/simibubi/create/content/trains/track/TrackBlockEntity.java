@@ -19,10 +19,13 @@ import com.simibubi.create.foundation.blockEntity.RemoveBlockEntityPacket;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
+import dev.engine_room.flywheel.api.visualization.VisualManager;
+import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import dev.engine_room.flywheel.lib.visualization.VisualizationHelper;
 import net.createmod.catnip.data.Pair;
 import net.createmod.catnip.nbt.NBTHelper;
 import net.createmod.catnip.platform.CatnipServices;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.HolderLookup;
@@ -364,6 +367,24 @@ public class TrackBlockEntity extends SmartBlockEntity implements TransformableB
 	private void removeFromCurveInteractionUnsafe() {
 		TrackBlockOutline.TRACKS_WITH_TURNS.get(level)
 			.remove(worldPosition);
+	}
+
+	@Override
+	public void onChunkUnloaded(){
+		super.onChunkUnloaded();
+		if (!level.isClientSide)
+			return;
+		if (!VisualizationManager.supportsVisualization(level))
+			return;
+		VisualizationManager manager = VisualizationManager.get(level);
+		if (manager == null)
+			return;
+		VisualManager<BlockEntity> beManager = manager.blockEntities();
+		for (BlockPos otherPos : connections.keySet()){
+			BlockEntity be = level.getBlockEntity(otherPos);
+			if (be instanceof TrackBlockEntity trackBlockEntity)
+				beManager.queueUpdate(trackBlockEntity);
+		}
 	}
 
 	public void manageFakeTracksAlong(BezierConnection bc, boolean remove) {
