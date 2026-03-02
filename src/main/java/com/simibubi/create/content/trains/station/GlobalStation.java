@@ -1,6 +1,7 @@
 package com.simibubi.create.content.trains.station;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +10,10 @@ import java.util.Map.Entry;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.Create;
+import com.simibubi.create.api.contraption.storage.item.MountedItemStorage;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.packagePort.postbox.PostboxBlockEntity;
+import com.simibubi.create.content.logistics.depot.storage.DepotMountedStorage;
 import com.simibubi.create.compat.computercraft.events.PackageEvent;
 import com.simibubi.create.content.trains.entity.Carriage;
 import com.simibubi.create.content.trains.entity.Train;
@@ -176,6 +179,16 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 		return this.nearestTrain.get();
 	}
 
+	private ItemStack putPackageOntoTrain(IItemHandlerModifiable carriageInv, ArrayList<DepotMountedStorage> depots, ItemStack stack){
+		for (DepotMountedStorage depot : depots){
+			ItemStack result = depot.insertItem(0, stack, false);
+			if (result.isEmpty())
+				return result;
+		}
+
+		return ItemHandlerHelper.insertItemStacked(carriageInv, stack, false);
+	}
+
 	public void runMailTransfer() {
 		Train train = getPresentTrain();
 		if (train == null || connectedPorts.isEmpty())
@@ -196,6 +209,15 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 				fetchInstruction = instruction;
 			else if (scheduleEntry.instruction instanceof DeliverPackagesInstruction instruction)
 				deliverInstruction = instruction;
+		}
+
+		ArrayList<DepotMountedStorage> depots = new ArrayList<>();
+		for (Carriage carriage : train.carriages) {
+			for (MountedItemStorage storage : carriage.storage.getAllItemStorages().values()) {
+				if (storage instanceof DepotMountedStorage depot) {
+					depots.add(depot);
+				}
+			}
 		}
 
 		for (Carriage carriage : train.carriages) {
@@ -231,7 +253,7 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 							continue;
 					}
 
-					ItemStack result = ItemHandlerHelper.insertItemStacked(carriageInventory, stack, false);
+					ItemStack result = putPackageOntoTrain(carriageInventory, depots, stack);
 					if (box != null)
 						box.computerBehaviour.prepareComputerEvent(new PackageEvent(stack, "package_sent"));
 					if (!result.isEmpty())
@@ -303,6 +325,7 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 			}
 
 		}
+		depots.clear();
 	}
 
 	private ScheduleEntry getCurrentScheduleStep(Train train){
