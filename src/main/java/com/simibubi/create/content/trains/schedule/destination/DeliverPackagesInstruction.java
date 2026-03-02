@@ -116,7 +116,10 @@ public class DeliverPackagesInstruction extends TextScheduleInstruction {
 					firstPackage = PackageItem.getAddress(stack);
 				for (GlobalStation globalStation : train.graph.getPoints(EdgePointType.STATION)) {
 					for (Entry<BlockPos, GlobalPackagePort> port : globalStation.connectedPorts.entrySet()) {
-						if (!PackageItem.matchAddress(stack, port.getValue().address))
+						GlobalPackagePort packagePort = port.getValue();
+						if (!packagePort.acceptsPackages)
+							continue;
+						if (!PackageItem.matchAddress(stack, packagePort.address))
 							continue;
 						anyMatch = true;
 						validStations.add(globalStation);

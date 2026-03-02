@@ -80,6 +80,7 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 			port.primed = c.getBoolean("Primed");
 			port.explicitFetch = c.getBoolean("ExplicitFetch");
 			port.explicitDeliver = c.getBoolean("ExplicitDeliver");
+			port.acceptsPackages = c.getBoolean("AcceptsPackages");
 			connectedPorts.put(NBTHelper.readBlockPos(c, "Pos"), port);
 		});
 	}
@@ -104,6 +105,7 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 			c.putString("Address", e.getValue().address);
 			c.put("OfflineBuffer", e.getValue().offlineBuffer.serializeNBT(registries));
 			c.putBoolean("Primed", e.getValue().primed);
+			c.putBoolean("AcceptsPackages", e.getValue().acceptsPackages);
 			c.putBoolean("ExplicitFetch", e.getValue().explicitFetch);
 			c.putBoolean("ExplicitDeliver", e.getValue().explicitDeliver);
 			c.put("Pos", NbtUtils.writeBlockPos(e.getKey()));
@@ -251,6 +253,9 @@ public class GlobalStation extends SingleBlockEntityEdgePoint {
 					GlobalPackagePort port = entry.getValue();
 					BlockPos pos = entry.getKey();
 					PostboxBlockEntity box = null;
+
+					if (!port.acceptsPackages)
+						continue;
 
 					if (!PackageItem.matchAddress(stack, port.address))
 						continue;

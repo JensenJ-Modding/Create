@@ -146,6 +146,7 @@ public class PostboxBlockEntity extends PackagePortBlockEntity {
 		globalPackagePort.saveOfflineBuffer(inventory);
 		globalPackagePort.explicitFetch = explicitFetch;
 		globalPackagePort.explicitDeliver = explicitDeliver;
+		globalPackagePort.acceptsPackages = acceptsPackages;
 	}
 
 	@Override
