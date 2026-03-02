@@ -18,6 +18,7 @@ import com.simibubi.create.foundation.mixin.accessor.ItemFrameAccessor;
 
 import net.createmod.catnip.components.ComponentProcessors;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -25,10 +26,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.AbstractBannerBlock;
+import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirtPathBlock;
 import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SeaPickleBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.TurtleEggBlock;
@@ -37,6 +40,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 
 public class ItemRequirement {
 	public static final ItemRequirement NONE = new ItemRequirement(Collections.emptyList());
@@ -56,8 +61,16 @@ public class ItemRequirement {
 		this(new StackRequirement(stack, usage));
 	}
 
+	public ItemRequirement(ItemUseType usage, ItemStack consume, ItemStack returnStack) {
+		this(new StackRequirement(consume, usage, returnStack));
+	}
+
 	public ItemRequirement(ItemUseType usage, Item item) {
 		this(usage, new ItemStack(item));
+	}
+
+	public ItemRequirement(ItemUseType usage, Item consume, Item returnItem) {
+		this(usage, new ItemStack(consume), new ItemStack(returnItem));
 	}
 
 	public ItemRequirement(ItemUseType usage, List<ItemStack> requiredItems) {
@@ -98,38 +111,71 @@ public class ItemRequirement {
 		if (block == Blocks.AIR)
 			return NONE;
 
+		List<ItemRequirement.StackRequirement> requirements = new ArrayList<>();
+		FluidState fluidState = state.getFluidState();
+
+		if (!fluidState.isEmpty() && fluidState.isSource()) {
+			requirements.add(new FluidStackRequirement(fluidState.getType(), 1000));
+		}
+
+		if (block instanceof LiquidBlock) {
+			return requirements.isEmpty() ? INVALID : new ItemRequirement(requirements);
+		}
+
 		Item item = block.asItem();
-		if (item == Items.AIR)
-			return INVALID;
+		ItemStack baseStack = (block instanceof AbstractBannerBlock && be instanceof BannerBlockEntity bannerBE)
+			? bannerBE.getItem()
+			: new ItemStack(item);
+
+		if (baseStack.isEmpty() && !(block instanceof AirBlock)) {
+			return requirements.isEmpty() ? INVALID : new ItemRequirement(requirements);
+		}
+
+		int count = 1;
 
 		// double slab needs two items
-		if (state.hasProperty(BlockStateProperties.SLAB_TYPE)
-			&& state.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.DOUBLE)
-			return new ItemRequirement(ItemUseType.CONSUME, new ItemStack(item, 2));
-		if (block instanceof TurtleEggBlock)
-			return new ItemRequirement(ItemUseType.CONSUME, new ItemStack(item, state.getValue(TurtleEggBlock.EGGS)
-				.intValue()));
-		if (block instanceof SeaPickleBlock)
-			return new ItemRequirement(ItemUseType.CONSUME, new ItemStack(item, state.getValue(SeaPickleBlock.PICKLES)
-				.intValue()));
-		if (block instanceof SnowLayerBlock)
-			return new ItemRequirement(ItemUseType.CONSUME, new ItemStack(item, state.getValue(SnowLayerBlock.LAYERS)
-				.intValue()));
-		// FD's rich soil extends FarmBlock so this is to make sure the cost is correct (it should be rich soil not dirt)
-		if (block == BuiltInRegistries.BLOCK.get(Mods.FD.asResource("rich_soil_farmland")))
-			return new ItemRequirement(ItemUseType.CONSUME, BuiltInRegistries.ITEM.get(Mods.FD.asResource("rich_soil")));
-		if (block instanceof FarmBlock || block instanceof DirtPathBlock)
-			return new ItemRequirement(ItemUseType.CONSUME, Items.DIRT);
-		if (block instanceof AbstractBannerBlock && be instanceof BannerBlockEntity bannerBE)
-			return new ItemRequirement(new StrictNbtStackRequirement(bannerBE.getItem(), ItemUseType.CONSUME));
+		if (state.hasProperty(BlockStateProperties.SLAB_TYPE) && state.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.DOUBLE) {
+			count = 2;
+		}
+		else if (block instanceof TurtleEggBlock) {
+			count = state.getValue(TurtleEggBlock.EGGS);
+		}
+		else if (block instanceof SeaPickleBlock) {
+			count = state.getValue(SeaPickleBlock.PICKLES);
+		}
+		else if (block instanceof SnowLayerBlock) {
+			count = state.getValue(SnowLayerBlock.LAYERS);
+		}
 		// Tall grass doesnt exist as a block so use 2 grass blades
-		if (block == Blocks.TALL_GRASS)
-			return new ItemRequirement(ItemUseType.CONSUME, new ItemStack(Items.SHORT_GRASS, 2));
+		else if (block == Blocks.TALL_GRASS) {
+			baseStack = new ItemStack(Items.SHORT_GRASS);
+			count = 2;
+		}
 		// Large ferns don't exist as blocks so use 2 ferns instead
-		if (block == Blocks.LARGE_FERN)
-			return new ItemRequirement(ItemUseType.CONSUME, new ItemStack(Items.FERN, 2));
+		else if (block == Blocks.LARGE_FERN) {
+			baseStack = new ItemStack(Items.FERN);
+			count = 2;
+		}
+		// FD's rich soil extends FarmBlock so this is to make sure the cost is correct (it should be rich soil not dirt)
+		else if (block instanceof FarmBlock || block instanceof DirtPathBlock) {
+			ResourceLocation richSoilFarmland = Mods.FD.asResource("rich_soil_farmland");
+			if (BuiltInRegistries.BLOCK.getKey(block).equals(richSoilFarmland)) {
+				baseStack = new ItemStack(BuiltInRegistries.ITEM.get(Mods.FD.asResource("rich_soil")));
+			} else {
+				baseStack = new ItemStack(Items.DIRT);
+			}
+		}
 
-		return new ItemRequirement(ItemUseType.CONSUME, item);
+		if (!baseStack.isEmpty()) {
+			baseStack.setCount(count);
+			if (block instanceof AbstractBannerBlock) {
+				requirements.add(new StrictNbtStackRequirement(baseStack, ItemUseType.CONSUME));
+			} else {
+				requirements.add(new StackRequirement(baseStack, ItemUseType.CONSUME));
+			}
+		}
+
+		return requirements.isEmpty() ? INVALID : new ItemRequirement(requirements);
 	}
 
 	public static ItemRequirement of(Entity entity) {
@@ -169,6 +215,15 @@ public class ItemRequirement {
 		return INVALID == this;
 	}
 
+	public boolean isPureFluid() {
+		if (requiredItems.isEmpty()) return false;
+		return requiredItems.stream().allMatch(req -> req instanceof FluidStackRequirement);
+	}
+
+	public boolean hasFluidRequirement() {
+		return requiredItems.stream().anyMatch(req -> req instanceof FluidStackRequirement);
+	}
+
 	public List<StackRequirement> getRequiredItems() {
 		return requiredItems;
 	}
@@ -186,16 +241,24 @@ public class ItemRequirement {
 	}
 
 	public enum ItemUseType {
-		CONSUME, DAMAGE
+		CONSUME, DAMAGE, CONSUME_AND_RETURN
 	}
 
 	public static class StackRequirement {
 		public final ItemStack stack;
+		public final ItemStack returnStack;
 		public final ItemUseType usage;
 
 		public StackRequirement(ItemStack stack, ItemUseType usage) {
 			this.stack = stack;
 			this.usage = usage;
+			this.returnStack = ItemStack.EMPTY;
+		}
+
+		public StackRequirement(ItemStack stack, ItemUseType usage, ItemStack returnStack) {
+			this.stack = stack;
+			this.usage = usage;
+			this.returnStack = returnStack;
 		}
 
 		public boolean matches(ItemStack other) {
@@ -211,6 +274,22 @@ public class ItemRequirement {
 		@Override
 		public boolean matches(ItemStack other) {
 			return ItemStack.isSameItemSameComponents(stack, other);
+		}
+	}
+
+	public static class FluidStackRequirement extends StackRequirement {
+		public final Fluid fluid;
+		public final long amount;
+
+		public FluidStackRequirement(Fluid fluid, long amount) {
+			super(ItemStack.EMPTY, ItemUseType.CONSUME);
+			this.fluid = fluid;
+			this.amount = amount;
+		}
+
+		@Override
+		public boolean matches(ItemStack other) {
+			return false;
 		}
 	}
 }
