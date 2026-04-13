@@ -39,6 +39,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 @ParametersAreNonnullByDefault
@@ -58,12 +59,11 @@ public class DeployerBlock extends DirectionalAxisKineticBlock implements IBE<De
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
-		return AllShapes.DEPLOYER_INTERACTION.get(state.getValue(FACING));
-	}
+		if (context instanceof EntityCollisionContext
+			&& ((EntityCollisionContext) context).getEntity() instanceof Player)
+			return AllShapes.DEPLOYER_INTERACTION.get(state.getValue(FACING));
 
-	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockGetter worldIn, BlockPos pos, CollisionContext context) {
-		return AllShapes.CASING_12PX.get(state.getValue(FACING));
+		return AllShapes.MECHANICAL_PROCESSOR_SHAPE.get(state.getValue(FACING));
 	}
 
 	@Override

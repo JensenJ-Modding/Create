@@ -37,7 +37,7 @@ public class MechanicalMixerBlock extends KineticBlock implements IBE<Mechanical
 			&& ((EntityCollisionContext) context).getEntity() instanceof Player)
 			return AllShapes.CASING_14PX.get(Direction.DOWN);
 
-		return AllShapes.MECHANICAL_PROCESSOR_SHAPE;
+		return AllShapes.MECHANICAL_PROCESSOR_SHAPE.get(Direction.DOWN);
 	}
 
 	@Override
